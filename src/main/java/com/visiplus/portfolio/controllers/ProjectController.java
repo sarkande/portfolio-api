@@ -37,9 +37,10 @@ public class ProjectController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Project> update(@PathVariable String id, @RequestBody Project updated) {
-        return projectRepository.findById(id).map(project -> {
-            updated.setId(project.getId());
-            return ResponseEntity.ok(projectRepository.save(updated));
-        }).orElse(ResponseEntity.notFound().build());
+        Project result = projectService.update(id, updated);
+        if (result == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(result);
     }
 }
