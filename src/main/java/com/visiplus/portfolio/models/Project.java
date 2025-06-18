@@ -14,7 +14,11 @@ import java.util.List;
 public class Project {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(unique = true)
+    private String slug;
 
     private String title;
     private String description;
@@ -42,4 +46,7 @@ public class Project {
 
     private boolean isFeatured;
     private boolean active;
+
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ProjectContent content;
 }

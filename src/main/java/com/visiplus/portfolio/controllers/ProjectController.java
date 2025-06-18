@@ -23,9 +23,9 @@ public class ProjectController {
         return projectRepository.findAll();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Project> findById(@PathVariable String id) {
-        return projectRepository.findById(id)
+    @GetMapping("/{slug}")
+    public ResponseEntity<Project> findBySlug(@PathVariable String slug) {
+        return projectRepository.findBySlug(slug)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
