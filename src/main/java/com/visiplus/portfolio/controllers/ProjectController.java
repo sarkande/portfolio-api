@@ -4,6 +4,7 @@ import com.visiplus.portfolio.models.Project;
 import com.visiplus.portfolio.repository.ProjectRepository;
 import com.visiplus.portfolio.services.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +15,12 @@ import java.util.List;
 @RequestMapping("/projects")
 @RequiredArgsConstructor
 public class ProjectController {
-    private final ProjectService projectService;
 
-    private final ProjectRepository projectRepository;
+    @Autowired
+    private  ProjectService projectService;
+
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @GetMapping
     public List<Project> findAll() {
@@ -35,9 +39,9 @@ public class ProjectController {
         return projectService.create(project);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Project> update(@PathVariable String id, @RequestBody Project updated) {
-        Project result = projectService.update(id, updated);
+    @PutMapping("/{slug}")
+    public ResponseEntity<Project> update(@PathVariable String slug, @RequestBody Project updated) {
+        Project result = projectService.update(slug, updated);
         if (result == null) {
             return ResponseEntity.notFound().build();
         }

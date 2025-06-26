@@ -6,6 +6,7 @@ import com.visiplus.portfolio.models.User;
 import com.visiplus.portfolio.repository.UserRepository;
 import com.visiplus.portfolio.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
@@ -17,9 +18,14 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
-    private final UserRepository userRepository;
+    @Autowired
+    private  AuthenticationManager authenticationManager;
+
+    @Autowired
+    private  JwtService jwtService;
+
+    @Autowired
+    private  UserRepository userRepository;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {

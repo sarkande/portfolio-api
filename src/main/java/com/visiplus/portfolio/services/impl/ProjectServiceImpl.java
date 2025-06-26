@@ -1,9 +1,8 @@
 package com.visiplus.portfolio.services.impl;
 
+import com.visiplus.portfolio.exceptions.ProjectNotFoundException;
 import com.visiplus.portfolio.models.Project;
 import com.visiplus.portfolio.repository.ProjectRepository;
-import com.visiplus.portfolio.repository.ProjectContentRepository;
-import com.visiplus.portfolio.models.ProjectContent;
 import com.visiplus.portfolio.services.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,55 +13,41 @@ import java.text.Normalizer;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final ProjectContentRepository contentRepository;
 
     @Override
     public Project create(Project project) {
         String uniqueSlug = generateUniqueSlug(project.getTitle());
         project.setSlug(uniqueSlug);
-        Project savedProject = projectRepository.save(project);
-
-        String contentJson = "{}";
-        if (project.getContent() != null && project.getContent().getContentJson() != null) {
-            contentJson = project.getContent().getContentJson();
-        }
-
-        ProjectContent content = ProjectContent.builder()
-                .project(savedProject)
-                .contentJson(contentJson)
-                .build();
-        contentRepository.save(content);
-        savedProject.setContent(content);
-
-        return savedProject;
+        return projectRepository.save(project);
     }
 
     @Override
-    public Project update(String id, Project updated) {
-        return projectRepository.findById(id).map(existing -> {
-            updated.setId(existing.getId());
-            if (updated.getSlug() == null || updated.getSlug().isEmpty() || !updated.getSlug().equals(existing.getSlug())) {
-                updated.setSlug(generateUniqueSlug(updated.getTitle()));
-            }
-            Project saved = projectRepository.save(updated);
+    public Project update(String slug, Project updated) {
+        // Vérifier que le projet existe et récupérer son id
+        Project existing = projectRepository.findBySlug(slug)
+                .orElseThrow(ProjectNotFoundException::new);
+        updated.setId(existing.getId());
 
-            String json = "{}";
-            if (updated.getContent() != null && updated.getContent().getContentJson() != null) {
-                json = updated.getContent().getContentJson();
-            }
+        // Regénérer le slug à partir du titre
+        updated.setSlug(generateUniqueSlug(updated.getTitle()));
 
-            ProjectContent content = existing.getContent();
-            if (content == null) {
-                content = new ProjectContent();
-                content.setProject(saved);
-            }
-            content.setContentJson(json);
-            contentRepository.save(content);
-            saved.setContent(content);
-
-            return saved;
-        }).orElse(null);
+        // Sauvegarder tout le projet mis à jour
+        return projectRepository.save(updated);
     }
+
+    @Override
+    public Project findBySlug(String slug) {
+        return projectRepository.findBySlug(slug)
+                .orElseThrow(ProjectNotFoundException::new);
+    }
+
+    @Override
+    public void delete(String slug) {
+        Project project = projectRepository.findBySlug(slug)
+                .orElseThrow(ProjectNotFoundException::new);
+        projectRepository.delete(project);
+    }
+
 
     private String generateUniqueSlug(String title) {
         // Slug de base

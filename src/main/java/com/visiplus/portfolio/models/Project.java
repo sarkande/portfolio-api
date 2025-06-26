@@ -47,6 +47,6 @@ public class Project {
     private boolean isFeatured;
     private boolean active;
 
-    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private ProjectContent content;
+    @Lob
+    private String content;
 }
